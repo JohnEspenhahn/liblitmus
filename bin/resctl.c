@@ -16,7 +16,7 @@ const char *usage_msg =
 	"    -n ID             create new reservation with id ID\n"
 	"    -a PID            attach already-running process PID to reservation\n"
 	"    -r ID             specify which reservation to attach to (not needed with -n)\n"
-	"    -t TYPE           type of reservation (polling-periodic, polling-sporadic, table-driven)\n"
+	"    -t TYPE           type of reservation (polling-periodic, polling-sporadic, table-driven, table-driven-ss)\n"
 	"    -c CPU            physical partition or cluster to assign to\n"
 	"    -b BUDGET         polling reservation budget (in ms, default: 10ms)\n"
 	"    -p PERIOD         polling reservation period (in ms, default: 100ms)\n"
@@ -196,11 +196,16 @@ int main(int argc, char** argv)
 				res_type = PERIODIC_POLLING;
 			} else if (strcmp(optarg, "polling-sporadic") == 0) {
 				res_type = SPORADIC_POLLING;
-			}  else if (strcmp(optarg, "table-driven") == 0) {
+			} else if (strcmp(optarg, "table-driven") == 0) {
 				res_type = TABLE_DRIVEN;
 				/* Default for table-driven reservations to
 				 * maximum priority. EDF has not meaning for
 				 * table-driven reservations. */
+				if (config.priority == LITMUS_NO_PRIORITY)
+					config.priority = LITMUS_HIGHEST_PRIORITY;
+			} else if (strcmp(optarg, "table-driven-ss") == 0) {
+				res_type = TABLE_DRIVEN_SS;
+				/* Same, EDF has no meaning */
 				if (config.priority == LITMUS_NO_PRIORITY)
 					config.priority = LITMUS_HIGHEST_PRIORITY;
 			} else {
