@@ -226,7 +226,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	if (res_type != TABLE_DRIVEN) {
+	if (res_type != TABLE_DRIVEN && res_type != TABLE_DRIVEN_SS) {
 		config.polling_params.budget = ms2ns(budget_ms);
 		config.polling_params.period = ms2ns(period_ms);
 		config.polling_params.offset = ms2ns(offset_ms);
