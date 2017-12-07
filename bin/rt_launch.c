@@ -26,6 +26,8 @@ const char *usage_msg =
 	"    -p CPU            partition or cluster to assign this task to\n"
 	"    -q PRIORITY       priority to use (ignored by EDF plugins, highest=1, lowest=511)\n"
 	"    -r VCPU           virtual CPU or reservation to attach to (irrelevant to most plugins)\n"
+	"    -C BUDGET         worst case execution time (in ms, only useful for table-driven-ss)\n"
+	"    -T PERIOD         period (is ms, only useful for table-driven-ss)\n"
 	"    -R                create sporadic reservation for task (with VCPU=PID)\n"
 	"    -v                verbose (prints PID)\n"
 	"    -w                wait for synchronous release\n"
@@ -36,7 +38,7 @@ void usage(char *error) {
 	exit(1);
 }
 
-#define OPTSTR "wp:q:c:er:o:d:vhR"
+#define OPTSTR "wp:q:c:er:o:d:vhRC:T:"
 
 int main(int argc, char** argv)
 {
@@ -59,6 +61,8 @@ int main(int argc, char** argv)
 
 	/* Reasonable defaults */
 	verbose = 0;
+	wcet_ms = 0;
+	period_ms = 0;
 	offset_ms = 0;
 	deadline_ms = 0;
 	priority = LITMUS_NO_PRIORITY;
@@ -94,6 +98,12 @@ int main(int argc, char** argv)
 			break;
 		case 'r':
 			reservation = want_non_negative_int(optarg, "-r");
+			break;
+		case 'C':
+			wcet_ms = want_positive_double(optarg, "-C");
+			break;
+		case 'T':
+			period_ms = want_positive_double(optarg, "-T");
 			break;
 		case 'R':
 			create_reservation = 1;
@@ -138,8 +148,8 @@ int main(int argc, char** argv)
 			usage("Argument missing.");
 
 		 /* pick dummy values */
-		wcet_ms   = 100;
-		period_ms = 100;
+		wcet_ms   = (!wcet_ms   ? 100 : wcet_ms);
+		period_ms = (!period_ms ? 100 : period_ms);
 	}
 
 	wcet   = ms2ns(wcet_ms);
